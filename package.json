@@ -1,6 +1,6 @@
 {
   "name": "kld-path-parser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Event-driven SVG path data parser",
   "author": {
     "name": "Kevin Lindsey",
@@ -13,7 +13,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "expresso"
+    "test": "mocha"
   },
   "keywords": [
     "paths",
@@ -21,9 +21,9 @@
     "SVG"
   ],
   "devDependencies": {
-    "expresso": "0.9.2"
+    "mocha": "^3.4.2"
   },
   "engines": {
-    "node": ">= 0.10.4"
+    "node": ">= 6.11.1"
   }
 }
