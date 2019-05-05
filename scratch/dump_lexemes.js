@@ -1,8 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env node -r esm
 
-"use strict";
-
-const PathLexer = require("../lib/PathLexer");
+import PathLexer from "../lib/PathLexer.js";
 
 const lexer = new PathLexer();
 const pathData = "M50,120 Q100,20 150,120 L250,120 C300,20 350,120 400,20";

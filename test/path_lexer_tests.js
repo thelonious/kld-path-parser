@@ -1,6 +1,4 @@
-"use strict";
-
-const PathLexer = require("../lib/PathLexer");
+import PathLexer from "../lib/PathLexer.js";
 
 describe("Lexer", () => {
     it("getNextToken", () => {

@@ -1,7 +1,5 @@
-"use strict";
-
-const PathParser = require("../lib/PathParser");
-const SampleHandler = require("../lib/SampleHandler");
+import PathParser from "../lib/PathParser.js";
+import SampleHandler from "../lib/SampleHandler.js";
 
 describe("Parser", () => {
     it("parseData", () => {
