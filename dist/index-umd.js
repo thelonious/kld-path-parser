@@ -179,7 +179,7 @@
       value: function parseData(pathData) {
         if (typeof pathData !== "string") {
           throw new Error("PathParser.parseData: The first parameter must be a string");
-        } // init handler
+        } // begin parse
 
 
         if (this._handler !== null && typeof this._handler.beginParse === "function") {
@@ -268,6 +268,11 @@
             default: // ignore for now
 
           }
+        } // end parse
+
+
+        if (this._handler !== null && typeof this._handler.endParse === "function") {
+          this._handler.endParse();
         }
       }
       /**
