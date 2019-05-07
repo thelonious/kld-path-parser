@@ -233,9 +233,7 @@
               case PathLexeme.NUMBER:
                 // convert current parameter to a float and add to
                 // parameter list
-
-                /* eslint-disable-next-line radix */
-                params[i] = parseInt(token.text, 10);
+                params[i] = parseFloat(token.text);
                 break;
 
               default:
