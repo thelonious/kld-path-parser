@@ -15,9 +15,7 @@ An event-driven SVG path data parser.
 # Usage
 
 ```javascript
-let lib = require('kld-path-parser'),
-    PathParser = lib.PathParser,
-    SampleHandler = lib.SampleHandler;
+import {PathParser, SampleHandler} from "kld-path-parser";
 
 let parser = new PathParser();
 let pathData = "M40,70 Q50,150 90,90 T135,130 L160,70 C180,180 280,55 280,140 S400,110 290,100";
@@ -42,6 +40,7 @@ curvetoCubicSmoothAbs(400,110,290,100)
 When creating your own event handler, you will need to define methods for each event you wish to listen for. Below is a list of all events (method names) that may be fired during a parse.
 
 - beginParse()
+- endParse()
 - arcAbs(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y)
 - arcRel(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y)
 - curvetoCubicAbs(x1, y1, x2, y2, x, y)
