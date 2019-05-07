@@ -1,6 +1,6 @@
 {
   "name": "kld-path-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Event-driven SVG path data parser",
   "author": {
     "name": "Kevin Lindsey",
