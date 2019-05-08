@@ -108,7 +108,7 @@
       key: "setPathData",
       value: function setPathData(pathData) {
         if (typeof pathData !== "string") {
-          throw new Error("PathLexer.setPathData: The first parameter must be a string");
+          throw new TypeError("The first parameter must be a string");
         }
 
         this._pathData = pathData;
@@ -139,7 +139,7 @@
               result = new PathLexeme(PathLexeme.NUMBER, RegExp.$1);
               d = d.substr(RegExp.$1.length);
             } else {
-              throw new Error("PathLexer.getNextToken: unrecognized path data " + d);
+              throw new SyntaxError("Unrecognized path data: ".concat(d));
             }
         }
 
@@ -180,7 +180,7 @@
       key: "parseData",
       value: function parseData(pathData) {
         if (typeof pathData !== "string") {
-          throw new Error("PathParser.parseData: The first parameter must be a string");
+          throw new TypeError("The first parameter must be a string: ".concat(pathData));
         } // begin parse
 
 
@@ -204,7 +204,7 @@
           switch (token.type) {
             case PathLexeme.COMMAND:
               if (mode === BOP && token.text !== "M" && token.text !== "m") {
-                throw new Error("PathParser.parseData: new paths must begin with a moveto command");
+                throw new SyntaxError("New paths must begin with a moveto command: ".concat(token));
               } // Set new parsing mode
 
 
@@ -221,7 +221,7 @@
               // that is the case and do nothing since the mode remains
               // the same
               if (mode === BOP) {
-                throw new Error("PathParser.parseData: new paths must begin with a moveto command");
+                throw new SyntaxError("New paths must begin with a moveto command: ".concat(token));
               } else {
                 parameterCount = PathParser.PARAMCOUNT[mode.toUpperCase()];
               }
@@ -229,14 +229,14 @@
               break;
 
             default:
-              throw new Error("PathParser.parseData: unrecognized command type: " + token.type);
+              throw new SyntaxError("Unrecognized command type: ".concat(token.type));
           } // Get parameters
 
 
           for (var i = 0; i < parameterCount; i++) {
             switch (token.type) {
               case PathLexeme.COMMAND:
-                throw new Error("PathParser.parseData: parameter must be a number: " + token.text);
+                throw new SyntaxError("Parameter must be a number: ".concat(token.text));
 
               case PathLexeme.NUMBER:
                 // convert current parameter to a float and add to
@@ -245,10 +245,10 @@
                 break;
 
               case PathLexeme.EOD:
-                throw new Error("PathParser.parseData: unexpected end of string");
+                throw new SyntaxError("PathParser.parseData: unexpected end of string");
 
               default:
-                throw new Error("PathParser.parseData: unrecognized parameter type: " + token.type);
+                throw new SyntaxError("PathParser.parseData: unrecognized parameter type: ".concat(token.type));
             }
 
             token = lexer.getNextToken();
@@ -291,7 +291,7 @@
           }
 
           if (token === lastToken) {
-            throw new Error("PathParser.parseData: parser stalled: " + token.text);
+            throw new SyntaxError("PathParser.parseData: parser stalled: ".concat(token.text));
           } else {
             lastToken = token;
           }
