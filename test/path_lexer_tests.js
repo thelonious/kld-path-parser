@@ -5,7 +5,7 @@ import PathLexeme from "../lib/PathLexeme.js";
 /**
  * Convert a string to a list of lexemes
  *
- * @param pathData
+ * @param {string} pathData
  * @returns {Array}
  */
 function getLexemes(pathData) {
