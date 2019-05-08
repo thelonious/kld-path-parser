@@ -32,6 +32,7 @@ const commands = [
  * @returns {function(): number}
  */
 function prng(seed) {
+    /* eslint-disable-next-line compat/compat */
     seed = seed || Date.now();
 
     return () => {
@@ -100,7 +101,7 @@ describe("Parser", () => {
         }
     });
     describe("Implied Command Repetition", () => {
-        const random = prng(20190506);
+        const random = prng(20190507);
 
         for (const command of commands) {
             const isMoveTo = command.name.match(/[mM]/);
@@ -117,7 +118,7 @@ describe("Parser", () => {
         }
     });
     describe("Invalid Path Starts", () => {
-        const random = prng(20190507);
+        const random = prng(20190506);
 
         for (const command of commands) {
             if (command.name.match(/[mM]/)) {
@@ -137,7 +138,7 @@ describe("Parser", () => {
         }
     });
     describe("Invalid Parameter Counts", () => {
-        const random = prng(20190506);
+        const random = prng(20190505);
 
         for (const command of commands) {
             const isMoveTo = command.name.match(/[mM]/);
