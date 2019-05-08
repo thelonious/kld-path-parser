@@ -133,7 +133,6 @@ describe("Parser", () => {
                 return Math.round(arg * 100) / 100;
             });
             const pathData = isMoveTo ? `${command.name}${parameters.join(",")}` : `M0,0 ${command.name}${parameters.join(",")}`;
-            console.log(pathData);
 
             it(`Start with '${command.name}'`, () => assertParseException(pathData));
         }
