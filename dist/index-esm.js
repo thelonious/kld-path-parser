@@ -240,7 +240,12 @@ function () {
 
         if (this._handler !== null) {
           var handler = this._handler;
-          var methodName = PathParser.METHODNAME[mode];
+          var methodName = PathParser.METHODNAME[mode]; // convert types for arcs
+
+          if (mode === "a" || mode === "A") {
+            params[3] = params[3] !== 0;
+            params[4] = params[4] !== 0;
+          }
 
           if (handler !== null && typeof handler[methodName] === "function") {
             handler[methodName].apply(handler, params);
