@@ -101,34 +101,31 @@ describe("Lexer", () => {
         ];
 
         for (const command of commands) {
-            it(command.name, () => {
-                assertCommand(command.text);
-            });
+            it(command.name, () => assertCommand(command.text));
         }
     });
     describe("Number Lexemes", () => {
         const signs = [
             {name: "", text: ""},
-            {name: "Negative, ", text: "-"},
-            {name: "Positive, ", text: "+"}
+            {name: "Negative", text: "-"},
+            {name: "Positive", text: "+"}
         ];
         const numbers = [
-            {name: "Zero ", text: "0"},
-            {name: "Leading zeros ", text: "000001"},
-            {name: "Integer ", text: "1234567890"},
-            {name: "Float ", text: "1.2"},
-            {name: "Leading decimal point ", text: ".2"},
-            {name: "Trailing decimal point ", text: "1."}
+            {name: "Zero", text: "0"},
+            {name: "Leading zeros", text: "000001"},
+            {name: "Integer", text: "1234567890"},
+            {name: "Float", text: "1.2"},
+            {name: "Leading decimal point", text: ".2"},
+            {name: "Trailing decimal point", text: "1."}
         ];
-
         const exponents = [
             {name: "", text: ""},
             {name: "Lower e", text: "e2"},
             {name: "Upper e", text: "E2"},
-            {name: "Lower e, Negative", text: "e-2"},
-            {name: "Upper e, Negative", text: "E-2"},
-            {name: "Lower e, Positive", text: "e+2"},
-            {name: "Upper e, Postiive", text: "E+2"}
+            {name: "Lower e Negative Exponent", text: "e-2"},
+            {name: "Upper e Negative Exponent", text: "E-2"},
+            {name: "Lower e Positive Exponent", text: "e+2"},
+            {name: "Upper e Positive Exponent", text: "E+2"}
         ];
 
         for (const sign of signs) {
@@ -138,7 +135,7 @@ describe("Lexer", () => {
                         sign.name,
                         number.name,
                         exponent.name
-                    ].join("").trim();
+                    ].join(" ").trim();
                     const text = [
                         sign.text,
                         number.text,
@@ -146,9 +143,7 @@ describe("Lexer", () => {
                     ].join("");
 
                     // console.log(`[label=${label} text=${text}]`);
-                    it(label, () => {
-                        assertNumber(text);
-                    });
+                    it(label, () => assertNumber(text));
                 }
             }
         }
