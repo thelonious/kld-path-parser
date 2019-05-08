@@ -42,6 +42,25 @@ function prng(seed) {
 }
 
 /**
+ * Make some random parameters
+ *
+ * @param {function(): number} random
+ * @param {number} count
+ * @returns {Array<number>}
+ */
+function makeParameters(random, count) {
+    const result = [];
+
+    for (let i = 0; i < count; i++) {
+        const arg = 200 * random() - 100;
+
+        result.push(Math.round(arg * 1000) / 1000);
+    }
+
+    return result;
+}
+
+/**
  * Parse path data
  *
  * @param {string} pathData
@@ -50,6 +69,8 @@ function prng(seed) {
 function parse(pathData) {
     const parser = new PathParser();
     const handler = new SampleHandler();
+
+    // console.log(pathData);
 
     parser.setHandler(handler);
     parser.parseData(pathData);
@@ -63,14 +84,10 @@ function parse(pathData) {
  * @param {string} pathData
  */
 function assertParseException(pathData) {
-    const parser = new PathParser();
-    const handler = new SampleHandler();
-
-    parser.setHandler(handler);
-
     try {
-        parser.parseData(pathData);
-        console.log(handler.logs.join("\n"));
+        const logs = parse(pathData);
+
+        console.log(logs.join("\n"));
         assert(false, `New paths must start with 'm' or 'M': ${pathData}`);
     }
     catch (e) {
@@ -89,12 +106,7 @@ describe("Parser", () => {
                 continue;
             }
 
-            /* eslint-disable-next-line compat/compat, unicorn/new-for-builtins, unicorn/prefer-spread */
-            const parameters = Array.from(Array(command.parameterCount), () => {
-                const arg = 200 * random() - 100;
-
-                return Math.round(arg * 100) / 100;
-            });
+            const parameters = makeParameters(random, command.parameterCount);
             const pathData = `M10,100 ${command.name}${parameters.join(",")}`;
 
             it(`Move followed by '${command.name}'`, () => parse(pathData));
@@ -105,14 +117,10 @@ describe("Parser", () => {
 
         for (const command of commands) {
             const isMoveTo = command.name.match(/[mM]/);
-
-            /* eslint-disable-next-line compat/compat, unicorn/new-for-builtins, unicorn/prefer-spread */
-            const parameters = Array.from(Array(command.parameterCount * 2), () => {
-                const arg = 200 * random() - 100;
-
-                return Math.round(arg * 100) / 100;
-            });
-            const pathData = isMoveTo ? `${command.name}${parameters.join(",")}` : `M0,0 ${command.name}${parameters.join(",")}`;
+            const parameters = makeParameters(random, command.parameterCount * 2);
+            const pathData = isMoveTo
+                ? `${command.name}${parameters.join(",")}`
+                : `M0,0 ${command.name}${parameters.join(",")}`;
 
             it(`Repeat '${command.name}'`, () => parse(pathData));
         }
@@ -125,12 +133,7 @@ describe("Parser", () => {
                 continue;
             }
 
-            /* eslint-disable-next-line compat/compat, unicorn/new-for-builtins, unicorn/prefer-spread */
-            const parameters = Array.from(Array(command.parameterCount), () => {
-                const arg = 200 * random() - 100;
-
-                return Math.round(arg * 100) / 100;
-            });
+            const parameters = makeParameters(random, command.parameterCount);
             const pathData = `${command.name}${parameters.join(",")}`;
 
             it(`Start with '${command.name}'`, () => assertParseException(pathData));
@@ -144,13 +147,10 @@ describe("Parser", () => {
             const isMoveTo = command.name.match(/[mM]/);
 
             const count = command.parameterCount > 0 ? command.parameterCount - 1 : 1;
-            /* eslint-disable-next-line compat/compat, unicorn/new-for-builtins, unicorn/prefer-spread */
-            const parameters = Array.from(Array(count), () => {
-                const arg = 200 * random() - 100;
-
-                return Math.round(arg * 100) / 100;
-            });
-            const pathData = isMoveTo ? `${command.name}${parameters.join(",")}` : `M0,0 ${command.name}${parameters.join(",")}`;
+            const parameters = makeParameters(random, count);
+            const pathData = isMoveTo
+                ? `${command.name}${parameters.join(",")}`
+                : `M0,0 ${command.name}${parameters.join(",")}`;
 
             it(`Start with '${command.name}'`, () => assertParseException(pathData));
         }
