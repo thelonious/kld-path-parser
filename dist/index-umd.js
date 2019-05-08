@@ -40,6 +40,8 @@
   /*#__PURE__*/
   function () {
     /**
+     *  PathLexeme
+     *
      *  @param {number} type
      *  @param {string} text
      */
@@ -50,7 +52,7 @@
       this.text = text;
     }
     /**
-     *  typeis
+     *  Determine if this lexeme is of the given type
      *
      *  @param {number} type
      *  @returns {boolean}
@@ -84,7 +86,7 @@
   /*#__PURE__*/
   function () {
     /**
-     *  @param {string} pathData
+     *  @param {string} [pathData]
      */
     function PathLexer(pathData) {
       _classCallCheck(this, PathLexer);
@@ -113,6 +115,8 @@
       }
       /**
        *  getNextToken
+       *
+       *  @returns {PathLexeme}
        */
 
     }, {
@@ -126,20 +130,17 @@
             result = new PathLexeme(PathLexeme.EOD, "");
           } else if (d.match(/^([ \t\r\n,]+)/)) {
             d = d.substr(RegExp.$1.length);
-          } // NOTE: Batik seemed to ignore the trailing /i in the following regex,
-          // so I expanded the regex to explicitly list both uppercase and
-          // lowercase commands.
-          else if (d.match(/^([AaCcHhLlMmQqSsTtVvZz])/)) {
-              result = new PathLexeme(PathLexeme.COMMAND, RegExp.$1);
+          } else if (d.match(/^([AaCcHhLlMmQqSsTtVvZz])/)) {
+            result = new PathLexeme(PathLexeme.COMMAND, RegExp.$1);
+            d = d.substr(RegExp.$1.length);
+          }
+          /* eslint-disable-next-line unicorn/no-unsafe-regex */
+          else if (d.match(/^(([-+]?\d+(\.\d*)?|[-+]?\.\d+)([eE][-+]?\d+)?)/)) {
+              result = new PathLexeme(PathLexeme.NUMBER, RegExp.$1);
               d = d.substr(RegExp.$1.length);
+            } else {
+              throw new Error("PathLexer.getNextToken: unrecognized path data " + d);
             }
-            /* eslint-disable-next-line unicorn/no-unsafe-regex */
-            else if (d.match(/^(([-+]?\d+(\.\d*)?|[-+]?\.\d+)([eE][-+]?\d+)?)/)) {
-                result = new PathLexeme(PathLexeme.NUMBER, parseFloat(RegExp.$1));
-                d = d.substr(RegExp.$1.length);
-              } else {
-                throw new Error("PathLexer.getNextToken: unrecognized path data " + d);
-              }
         }
 
         this._pathData = d;
@@ -150,6 +151,7 @@
     return PathLexer;
   }();
 
+  var BOP = "BOP";
   /**
    *  PathParser
    */
@@ -188,11 +190,11 @@
 
 
         var lexer = this._lexer;
-        lexer.setPathData(pathData); // set mode to signify new path
-        // NOTE: BOP means Beginning of Path
+        lexer.setPathData(pathData); // set mode to signify new path - Beginning Of Path
 
-        var mode = "BOP"; // Process all tokens
+        var mode = BOP; // Process all tokens
 
+        var lastToken = null;
         var token = lexer.getNextToken();
 
         while (token.typeis(PathLexeme.EOD) === false) {
@@ -201,8 +203,8 @@
 
           switch (token.type) {
             case PathLexeme.COMMAND:
-              if (mode === "BOP" && token.text !== "M" && token.text !== "m") {
-                throw new Error("PathParser.parseData: a path must begin with a moveto command");
+              if (mode === BOP && token.text !== "M" && token.text !== "m") {
+                throw new Error("PathParser.parseData: new paths must begin with a moveto command");
               } // Set new parsing mode
 
 
@@ -217,11 +219,17 @@
               // Most commands allow you to keep repeating parameters
               // without specifying the command again.  We just assume
               // that is the case and do nothing since the mode remains
-              // the same and param_count is already set
+              // the same
+              if (mode === BOP) {
+                throw new Error("PathParser.parseData: new paths must begin with a moveto command");
+              } else {
+                parameterCount = PathParser.PARAMCOUNT[mode.toUpperCase()];
+              }
+
               break;
 
             default:
-              throw new Error("PathParser.parseData: unrecognized token type: " + token.type);
+              throw new Error("PathParser.parseData: unrecognized command type: " + token.type);
           } // Get parameters
 
 
@@ -236,8 +244,11 @@
                 params[i] = parseFloat(token.text);
                 break;
 
+              case PathLexeme.EOD:
+                throw new Error("PathParser.parseData: unexpected end of string");
+
               default:
-                throw new Error("PathParser.parseData: unrecognized token type: " + token.type);
+                throw new Error("PathParser.parseData: unrecognized parameter type: " + token.type);
             }
 
             token = lexer.getNextToken();
@@ -270,8 +281,19 @@
               mode = "l";
               break;
 
+            case "Z":
+            case "z":
+              mode = "BOP";
+              break;
+
             default: // ignore for now
 
+          }
+
+          if (token === lastToken) {
+            throw new Error("PathParser.parseData: parser stalled: " + token.text);
+          } else {
+            lastToken = token;
           }
         } // end parse
 
@@ -335,7 +357,7 @@
     z: "closePath"
   };
 
-  /* eslint-disable prefer-rest-params, class-methods-use-this */
+  /* eslint-disable prefer-rest-params */
 
   /**
    *  SampleHandler.js
@@ -345,33 +367,33 @@
    */
 
   /**
-   *  show
-   *
-   *  @param {string} name
-   *  @param {Array<string>} params
-   */
-  function show(name) {
-    for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      params[_key - 1] = arguments[_key];
-    }
-
-    console.log("".concat(name, "(").concat(params.join(","), ")"));
-  }
-  /**
    *  SampleHandler
    */
-
-
   var SampleHandler =
   /*#__PURE__*/
   function () {
     function SampleHandler() {
       _classCallCheck(this, SampleHandler);
+
+      this.logs = [];
     }
+    /**
+     *  log
+     *
+     *  @param {string} name
+     *  @param {Array<string>} params
+     */
+
 
     _createClass(SampleHandler, [{
-      key: "arcAbs",
+      key: "log",
+      value: function log(name) {
+        for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          params[_key - 1] = arguments[_key];
+        }
 
+        this.logs.push("".concat(name, "(").concat(params.join(","), ")"));
+      }
       /**
        *  arcAbs - A
        *
@@ -383,8 +405,11 @@
        *  @param {number} x
        *  @param {number} y
        */
+
+    }, {
+      key: "arcAbs",
       value: function arcAbs(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y) {
-        show.apply(void 0, ["arcAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["arcAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  arcRel - a
@@ -401,7 +426,7 @@
     }, {
       key: "arcRel",
       value: function arcRel(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y) {
-        show.apply(void 0, ["arcRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["arcRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoCubicAbs - C
@@ -417,7 +442,7 @@
     }, {
       key: "curvetoCubicAbs",
       value: function curvetoCubicAbs(x1, y1, x2, y2, x, y) {
-        show.apply(void 0, ["curvetoCubicAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoCubicAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoCubicRel - c
@@ -433,7 +458,7 @@
     }, {
       key: "curvetoCubicRel",
       value: function curvetoCubicRel(x1, y1, x2, y2, x, y) {
-        show.apply(void 0, ["curvetoCubicRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoCubicRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  linetoHorizontalAbs - H
@@ -444,7 +469,7 @@
     }, {
       key: "linetoHorizontalAbs",
       value: function linetoHorizontalAbs(x) {
-        show.apply(void 0, ["linetoHorizontalAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["linetoHorizontalAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  linetoHorizontalRel - h
@@ -455,7 +480,7 @@
     }, {
       key: "linetoHorizontalRel",
       value: function linetoHorizontalRel(x) {
-        show.apply(void 0, ["linetoHorizontalRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["linetoHorizontalRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  linetoAbs - L
@@ -467,7 +492,7 @@
     }, {
       key: "linetoAbs",
       value: function linetoAbs(x, y) {
-        show.apply(void 0, ["linetoAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["linetoAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  linetoRel - l
@@ -479,7 +504,7 @@
     }, {
       key: "linetoRel",
       value: function linetoRel(x, y) {
-        show.apply(void 0, ["linetoRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["linetoRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  movetoAbs - M
@@ -491,7 +516,7 @@
     }, {
       key: "movetoAbs",
       value: function movetoAbs(x, y) {
-        show.apply(void 0, ["movetoAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["movetoAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  movetoRel - m
@@ -503,7 +528,7 @@
     }, {
       key: "movetoRel",
       value: function movetoRel(x, y) {
-        show.apply(void 0, ["movetoRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["movetoRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoQuadraticAbs - Q
@@ -517,7 +542,7 @@
     }, {
       key: "curvetoQuadraticAbs",
       value: function curvetoQuadraticAbs(x1, y1, x, y) {
-        show.apply(void 0, ["curvetoQuadraticAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoQuadraticAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoQuadraticRel - q
@@ -531,7 +556,7 @@
     }, {
       key: "curvetoQuadraticRel",
       value: function curvetoQuadraticRel(x1, y1, x, y) {
-        show.apply(void 0, ["curvetoQuadraticRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoQuadraticRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoCubicSmoothAbs - S
@@ -545,7 +570,7 @@
     }, {
       key: "curvetoCubicSmoothAbs",
       value: function curvetoCubicSmoothAbs(x2, y2, x, y) {
-        show.apply(void 0, ["curvetoCubicSmoothAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoCubicSmoothAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoCubicSmoothRel - s
@@ -559,7 +584,7 @@
     }, {
       key: "curvetoCubicSmoothRel",
       value: function curvetoCubicSmoothRel(x2, y2, x, y) {
-        show.apply(void 0, ["curvetoCubicSmoothRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoCubicSmoothRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoQuadraticSmoothAbs - T
@@ -571,7 +596,7 @@
     }, {
       key: "curvetoQuadraticSmoothAbs",
       value: function curvetoQuadraticSmoothAbs(x, y) {
-        show.apply(void 0, ["curvetoQuadraticSmoothAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoQuadraticSmoothAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  curvetoQuadraticSmoothRel - t
@@ -583,7 +608,7 @@
     }, {
       key: "curvetoQuadraticSmoothRel",
       value: function curvetoQuadraticSmoothRel(x, y) {
-        show.apply(void 0, ["curvetoQuadraticSmoothRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["curvetoQuadraticSmoothRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  linetoVerticalAbs - V
@@ -594,7 +619,7 @@
     }, {
       key: "linetoVerticalAbs",
       value: function linetoVerticalAbs(y) {
-        show.apply(void 0, ["linetoVerticalAbs"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["linetoVerticalAbs"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  linetoVerticalRel - v
@@ -605,7 +630,7 @@
     }, {
       key: "linetoVerticalRel",
       value: function linetoVerticalRel(y) {
-        show.apply(void 0, ["linetoVerticalRel"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["linetoVerticalRel"].concat(Array.prototype.slice.call(arguments)));
       }
       /**
        *  closePath - z or Z
@@ -614,7 +639,7 @@
     }, {
       key: "closePath",
       value: function closePath() {
-        show.apply(void 0, ["closePath"].concat(Array.prototype.slice.call(arguments)));
+        this.log.apply(this, ["closePath"].concat(Array.prototype.slice.call(arguments)));
       }
     }]);
 
