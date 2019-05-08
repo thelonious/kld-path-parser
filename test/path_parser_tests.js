@@ -99,6 +99,23 @@ describe("Parser", () => {
             it(`Move followed by '${command.name}'`, () => parse(pathData));
         }
     });
+    describe("Implied Command Repetition", () => {
+        const random = prng(20190506);
+
+        for (const command of commands) {
+            const isMoveTo = command.name.match(/[mM]/);
+
+            /* eslint-disable-next-line compat/compat, unicorn/new-for-builtins, unicorn/prefer-spread */
+            const parameters = Array.from(Array(command.parameterCount * 2), () => {
+                const arg = 200 * random() - 100;
+
+                return Math.round(arg * 100) / 100;
+            });
+            const pathData = isMoveTo ? `${command.name}${parameters.join(",")}` : `M0,0 ${command.name}${parameters.join(",")}`;
+
+            it(`Repeat '${command.name}'`, () => parse(pathData));
+        }
+    });
     describe("Invalid Path Starts", () => {
         const random = prng(20190507);
 
