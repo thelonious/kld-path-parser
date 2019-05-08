@@ -198,7 +198,7 @@ function () {
         switch (token.type) {
           case PathLexeme.COMMAND:
             if (mode === BOP && token.text !== "M" && token.text !== "m") {
-              throw new SyntaxError("New paths must begin with a moveto command: ".concat(token));
+              throw new SyntaxError("New paths must begin with a moveto command. Found '".concat(token.text, "'"));
             } // Set new parsing mode
 
 
@@ -215,7 +215,7 @@ function () {
             // that is the case and do nothing since the mode remains
             // the same
             if (mode === BOP) {
-              throw new SyntaxError("New paths must begin with a moveto command: ".concat(token));
+              throw new SyntaxError("New paths must begin with a moveto command. Found '".concat(token.text, "'"));
             } else {
               parameterCount = PathParser.PARAMCOUNT[mode.toUpperCase()];
             }
@@ -230,7 +230,7 @@ function () {
         for (var i = 0; i < parameterCount; i++) {
           switch (token.type) {
             case PathLexeme.COMMAND:
-              throw new SyntaxError("Parameter must be a number: ".concat(token.text));
+              throw new SyntaxError("Parameter must be a number. Found '".concat(token.text, "'"));
 
             case PathLexeme.NUMBER:
               // convert current parameter to a float and add to
@@ -239,10 +239,10 @@ function () {
               break;
 
             case PathLexeme.EOD:
-              throw new SyntaxError("PathParser.parseData: unexpected end of string");
+              throw new SyntaxError("Unexpected end of string");
 
             default:
-              throw new SyntaxError("PathParser.parseData: unrecognized parameter type: ".concat(token.type));
+              throw new SyntaxError("Unrecognized parameter type. Found type '".concat(token.type, "'"));
           }
 
           token = lexer.getNextToken();
@@ -285,7 +285,7 @@ function () {
         }
 
         if (token === lastToken) {
-          throw new SyntaxError("PathParser.parseData: parser stalled: ".concat(token.text));
+          throw new SyntaxError("Parser stalled on '".concat(token.text, "'"));
         } else {
           lastToken = token;
         }
