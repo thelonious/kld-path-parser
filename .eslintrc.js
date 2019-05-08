@@ -12,12 +12,6 @@ module.exports = {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "settings": {
-        "polyfills": [
-            "console",
-            "Error"
-        ]
-    },
     "overrides": [
         {
             files: "docs/jsdoc-config.js",
@@ -39,14 +33,7 @@ module.exports = {
                 "padded-blocks": "off",
                 "import/unambiguous": "off",
                 "import/no-unresolved": "off",
-                "node/no-missing-import": "off",
-                "no-unused-vars": ["warn"],
-                "no-unused-vars": ["error", {
-                    "varsIgnorePattern": "Point2D"
-                }],
-                "node/no-missing-require": ["error", {
-                    "allowModules": ["kld-intersections"]
-                }]
+                "node/no-missing-import": "off"
             }
         }
     ],
@@ -72,14 +59,10 @@ module.exports = {
             "error",
             "as-needed"
         ],
-        "no-console": "off",
-        "no-multiple-empty-lines": "off",
         "max-len": "off",
         "node/exports-style": "off",
-        "unicorn/no-zero-fractions": "off",
         "require-unicode-regexp": "off",
         "yoda": "off",
-        "valid-jsdoc": 0,
-        "unicorn/prefer-type-error": "off"
+        "valid-jsdoc": 0
     }
 };
