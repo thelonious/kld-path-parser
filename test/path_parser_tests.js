@@ -85,9 +85,11 @@ function parse(pathData) {
  */
 function assertParseException(pathData) {
     try {
-        const logs = parse(pathData);
+        parse(pathData);
 
-        console.log(logs.join("\n"));
+        // const logs = parse(pathData);
+        // console.log(logs.join("\n"));
+
         assert(false, `New paths must start with 'm' or 'M': ${pathData}`);
     }
     catch (e) {
