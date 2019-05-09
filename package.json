@@ -55,6 +55,7 @@
     "eslint-plugin-unicorn": "^8.0.2",
     "esm": "^3.2.22",
     "jsdoc": "^3.6.1",
+    "kld-random": "0.0.2",
     "mocha": "^6.1.4",
     "node-static": "^0.7.11",
     "opn-cli": "^4.1.0",

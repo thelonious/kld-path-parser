@@ -1,4 +1,5 @@
 import assert from "assert";
+import {uniformGeneratorRange} from "kld-random";
 import PathParser from "../lib/PathParser.js";
 import SampleHandler from "../lib/SampleHandler.js";
 
@@ -26,22 +27,6 @@ const commands = [
 ];
 
 /**
- * Create a random number generator
- *
- * @param {number} [seed]
- * @returns {function(): number}
- */
-function prng(seed) {
-    /* eslint-disable-next-line compat/compat */
-    seed = seed || Date.now();
-
-    return () => {
-        seed = Math.sin(seed) * 10000;
-        return seed - Math.floor(seed);
-    };
-}
-
-/**
  * Make some random parameters
  *
  * @param {function(): number} random
@@ -52,9 +37,7 @@ function makeParameters(random, count) {
     const result = [];
 
     for (let i = 0; i < count; i++) {
-        const arg = 200 * random() - 100;
-
-        result.push(Math.round(arg * 1000) / 1000);
+        result.push(Math.round(random() * 1000) / 1000);
     }
 
     return result;
@@ -101,7 +84,7 @@ function assertParseException(pathData) {
 
 describe("Parser", () => {
     describe("Simple Paths", () => {
-        const random = prng(20190508);
+        const random = uniformGeneratorRange(-100, 100, 20190508);
 
         for (const command of commands) {
             if (command.name.match(/[mM]/)) {
@@ -115,7 +98,7 @@ describe("Parser", () => {
         }
     });
     describe("Implied Command Repetition", () => {
-        const random = prng(20190507);
+        const random = uniformGeneratorRange(-100, 100, 20190507);
 
         for (const command of commands) {
             const isMoveTo = command.name.match(/[mM]/);
@@ -128,7 +111,7 @@ describe("Parser", () => {
         }
     });
     describe("Invalid Path Starts", () => {
-        const random = prng(20190506);
+        const random = uniformGeneratorRange(-100, 100, 20190506);
 
         for (const command of commands) {
             if (command.name.match(/[mM]/)) {
@@ -143,7 +126,7 @@ describe("Parser", () => {
         }
     });
     describe("Invalid Parameter Counts", () => {
-        const random = prng(20190505);
+        const random = uniformGeneratorRange(-100, 100, 20190505);
 
         for (const command of commands) {
             const isMoveTo = command.name.match(/[mM]/);
