@@ -1,6 +1,7 @@
 # kld-path-parser
 
 - [Installation](#installation)
+- [Importing](#importing)
 - [Usage](#usage)
 - [Custom Handlers](#custom-handlers)
 
@@ -12,16 +13,51 @@ An event-driven SVG path data parser.
 
 ```npm install kld-path-parser```
 
+# Importing
+
+The following sections indicate how you can import the code for use in various environments.
+
+## Node
+
+```javascript
+import {PathParser, SampleHandler} = require("kld-path-parser");
+```
+
+## ESM in Modern Browsers
+
+```javascript
+import {PathParser, SampleHandler} from './node_modules/kld-path-parser/dist/index-esm.js';
+```
+
+## Older Browsers
+
+```html
+<script src="./node_modules/kld-path-parser/dist/index-umd.js"></script>
+<script>
+  var PathParser = KldPathParser.PathParser;
+  var SampleHandler = KldPathParser.SampleHandler;
+</script>
+```
+
+## Bundlers
+
+```javascript
+import {AffineShapes, Shapes, Intersection} from "kld-path-parser";
+```
+
 # Usage
 
 ```javascript
 import {PathParser, SampleHandler} from "kld-path-parser";
 
-let parser = new PathParser();
-let pathData = "M40,70 Q50,150 90,90 T135,130 L160,70 C180,180 280,55 280,140 S400,110 290,100";
+const parser = new PathParser();
+const handler = new SampleHandler());
+const pathData = "M40,70 Q50,150 90,90 T135,130 L160,70 C180,180 280,55 280,140 S400,110 290,100";
 
-parser.setHandler(new SampleHandler());
+parser.setHandler(handler);
 parser.parseData(pathData);
+
+console.log(handler.logs.join("\n"));
 ```
 
 ## Result
