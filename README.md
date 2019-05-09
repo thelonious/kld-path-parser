@@ -4,6 +4,7 @@
 - [Importing](#importing)
 - [Usage](#usage)
 - [Custom Handlers](#custom-handlers)
+- [Links and Related Projects](#links-and-related-projects)
 
 ---
 
@@ -96,3 +97,8 @@ When creating your own event handler, you will need to define methods for each e
 - linetoVerticalAbs(y)
 - linetoVerticalRel(y)
 - closePath()
+
+# Links and Related Projects
+
+- [kld-intersections](https://github.com/thelonious/kld-intersections)
+- [kld-contours](https://github.com/thelonious/kld-contours)
